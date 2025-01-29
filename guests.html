@@ -32,15 +32,19 @@
 
             querySnapshot.forEach((doc) => {
                 const { name, attending, count } = doc.data();
-                guestsList += `<li>${name} — ${attending === "yes" ? "✅ Пойдёт" : "❌ Не пойдёт"} (${count} чел.)</li>`;
+                const guestCount = count !== undefined ? count : "?"; // Если count не задан, ставим "?"
+
+                guestsList += `<li>${name} — ${attending === "yes" ? "✅ Пойдёт" : "❌ Не пойдёт"} (${guestCount} чел.)</li>`;
                 
-                if (attending === "yes") {
+                if (attending === "yes" && count !== undefined) {
                     attendingGuests += count;
-                } else {
+                } else if (attending === "no" && count !== undefined) {
                     notAttendingGuests += count;
                 }
 
-                totalGuests += count;
+                if (count !== undefined) {
+                    totalGuests += count;
+                }
             });
 
             document.getElementById("guest-list").innerHTML = guestsList;
