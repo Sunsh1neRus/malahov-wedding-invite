@@ -21,7 +21,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 2. Получаем имя гостя из URL (GET-параметры)
+        // 2. Получаем имя гостя из URL
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param) || "Гость";
@@ -32,7 +32,7 @@
             document.getElementById("guest-name").innerText = guestName;
         });
 
-        // 3. Отправляем RSVP
+        // 3. Функция отправки данных в Firestore
         async function sendRSVP(attending) {
             const guestName = getQueryParam("name");
             const guestCount = document.getElementById("guest-count").value;
@@ -56,6 +56,9 @@
                 alert("Ошибка! Попробуйте снова.");
             }
         }
+
+        // 4. Делаем функцию глобальной
+        window.sendRSVP = sendRSVP;
     </script>
 </head>
 <body>
