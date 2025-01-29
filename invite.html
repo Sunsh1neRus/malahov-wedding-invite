@@ -24,12 +24,18 @@
         // 2. Получаем имя гостя из URL
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param) || "Гость";
+            return urlParams.get(param) || "";
         }
 
         document.addEventListener("DOMContentLoaded", () => {
             const guestName = getQueryParam("name");
             document.getElementById("guest-name").innerText = guestName;
+
+            // Если имени нет в URL, запрещаем отправку формы
+            if (!guestName) {
+                document.getElementById("error-message").innerText = "Ошибка: отсутствует имя гостя в ссылке!";
+                document.getElementById("buttons").style.display = "none";
+            }
         });
 
         // 3. Функция отправки данных в Firestore
@@ -37,8 +43,13 @@
             const guestName = getQueryParam("name");
             const guestCount = document.getElementById("guest-count").value;
 
+            // 4. Валидация перед отправкой
+            if (!guestName) {
+                alert("Ошибка: отсутствует имя гостя!");
+                return;
+            }
             if (!guestCount || guestCount < 1) {
-                alert("Укажите корректное количество гостей!");
+                alert("Ошибка: укажите корректное количество гостей (1 или больше)!");
                 return;
             }
 
@@ -57,14 +68,14 @@
             }
         }
 
-        // 4. Делаем функцию глобальной
+        // Делаем функцию глобальной
         window.sendRSVP = sendRSVP;
     </script>
 </head>
 <body>
     <h1>Приглашение на свадьбу</h1>
     <h2>Привет, <span id="guest-name"></span>!</h2>
-    <p>Подтвердите своё присутствие:</p>
+    <p id="error-message" style="color: red;"></p>
 
     <div id="buttons">
         <label>Сколько человек вас будет? <input type="number" id="guest-count" min="1" required></label>
