@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приглашение на свадьбу</title>
+    <script type="module">
+        // 1. Подключаем Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACTS-6bA7DRflCseX0yz0cTqa-74LUnOI",
+            authDomain: "malahov-wedding-invite.firebaseapp.com",
+            projectId: "malahov-wedding-invite",
+            storageBucket: "malahov-wedding-invite.firebasestorage.app",
+            messagingSenderId: "630037058172",
+            appId: "1:630037058172:web:5826810183898eb467aff9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 2. Получаем имя гостя из URL (GET-параметры)
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param) || "Гость";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const guestName = getQueryParam("name");
+            document.getElementById("guest-name").innerText = guestName;
+        });
+
+        // 3. Отправляем RSVP
+        async function sendRSVP(attending) {
+            const guestName = getQueryParam("name");
+            const guestCount = document.getElementById("guest-count").value;
+
+            if (!guestCount || guestCount < 1) {
+                alert("Укажите корректное количество гостей!");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "guests"), { 
+                    name: guestName, 
+                    attending, 
+                    count: parseInt(guestCount, 10) 
+                });
+
+                document.getElementById("response").innerHTML = `<h3>Спасибо, ${guestName}! Ваш ответ сохранён.</h3>`;
+                document.getElementById("buttons").style.display = "none";
+            } catch (error) {
+                console.error("Ошибка отправки:", error);
+                alert("Ошибка! Попробуйте снова.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Приглашение на свадьбу</h1>
+    <h2>Привет, <span id="guest-name"></span>!</h2>
+    <p>Подтвердите своё присутствие:</p>
+
+    <div id="buttons">
+        <label>Сколько человек вас будет? <input type="number" id="guest-count" min="1" required></label>
+        <br><br>
+        <button onclick="sendRSVP('yes')">✅ Приду</button>
+        <button onclick="sendRSVP('no')">❌ Не приду</button>
+    </div>
+
+    <div id="response"></div>
+</body>
+</html>
