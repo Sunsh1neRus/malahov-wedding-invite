@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список гостей</title>
+    <script type="module">
+        // 1. Подключаем Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACTS-6bA7DRflCseX0yz0cTqa-74LUnOI",
+            authDomain: "malahov-wedding-invite.firebaseapp.com",
+            projectId: "malahov-wedding-invite",
+            storageBucket: "malahov-wedding-invite.firebasestorage.app",
+            messagingSenderId: "630037058172",
+            appId: "1:630037058172:web:5826810183898eb467aff9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const guestsRef = collection(db, "guests");
+            const querySnapshot = await getDocs(guestsRef);
+            
+            let totalGuests = 0;
+            let attendingGuests = 0;
+            let notAttendingGuests = 0;
+            let guestsList = "";
+
+            querySnapshot.forEach((doc) => {
+                const { name, attending, count } = doc.data();
+                guestsList += `<li>${name} — ${attending === "yes" ? "✅ Пойдёт" : "❌ Не пойдёт"} (${count} чел.)</li>`;
+                
+                if (attending === "yes") {
+                    attendingGuests += count;
+                } else {
+                    notAttendingGuests += count;
+                }
+
+                totalGuests += count;
+            });
+
+            document.getElementById("guest-list").innerHTML = guestsList;
+            document.getElementById("total-count").innerText = `Всего гостей (подтверждено): ${attendingGuests}`;
+            document.getElementById("declined-count").innerText = `Отказались: ${notAttendingGuests}`;
+            document.getElementById("overall-count").innerText = `Общее число всех гостей: ${totalGuests}`;
+        });
+    </script>
+</head>
+<body>
+    <h1>Список гостей</h1>
+    <h2 id="total-count">Загрузка...</h2>
+    <h2 id="declined-count">Загрузка...</h2>
+    <h2 id="overall-count">Загрузка...</h2>
+    <ul id="guest-list">Загрузка...</ul>
+</body>
+</html>
